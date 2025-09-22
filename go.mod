@@ -1,6 +1,6 @@
 module github.com/ably/vcdiff-go
 
-go 1.22.3
+go 1.18
 
 require github.com/spf13/cobra v1.9.1
 
