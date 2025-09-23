@@ -47,7 +47,7 @@ jobs:
         uses: dorny/test-reporter@v1
         if: success() || failure()
         with:
-          name: Go Tests (Go ${{ matrix.go-version }})
+          name: View Test Results (Go ${{ matrix.go-version }})
           path: unit.junit
           reporter: java-junit
           fail-on-error: true
