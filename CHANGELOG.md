@@ -1,5 +1,13 @@
 # Change Log
 
+## [0.0.2](https://github.com/ably/vcdiff-go/tree/v0.0.2)
+
+[Full Changelog](https://github.com/ably/vcdiff-go/compare/v0.0.1...v0.0.2)
+
+**Implemented enhancements:**
+- Added GitHub Actions CI workflow for automated testing across Go versions 1.18-1.25
+- Set minimum Go version requirement to 1.18 for broader compatibility
+
 ## [0.0.1](https://github.com/ably/vcdiff-go/tree/v0.0.1)
 
 [Full Changelog](https://github.com/ably/vcdiff-go/releases/tag/v0.0.1)
