@@ -1,5 +1,11 @@
 # Change Log
 
+## Unreleased
+
+**Fixed:**
+- COPY instructions through a near cache slot holding address 0 no longer fail with "near cache slot is uninitialized"; RFC 3284 zero fills the cache, so 0 is a valid cached address
+- COPY instructions through the same cache (modes 6-8) for addresses of 768 or more no longer silently resolve to address 0; the same cache was allocated with 768 blocks instead of 3
+
 ## [0.0.2](https://github.com/ably/vcdiff-go/tree/v0.0.2)
 
 [Full Changelog](https://github.com/ably/vcdiff-go/compare/v0.0.1...v0.0.2)

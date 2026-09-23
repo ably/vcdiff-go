@@ -13,20 +13,22 @@ const (
 // AddressCache manages address encoding/decoding for COPY instructions
 type AddressCache struct {
 	nearSize      int
-	sameSize      int
+	sameBlocks    int
 	near          []uint32
 	nextNearSlot  int
 	same          []uint32
 	addressStream *bytes.Reader
 }
 
-// NewAddressCache creates a new address cache with the specified sizes
-func NewAddressCache(nearSize, sameSize int) *AddressCache {
+// NewAddressCache creates a new address cache. nearSize is s_near, the number
+// of "near" slots; sameBlocks is s_same, the number of SameCacheBlockSize-slot
+// blocks in the "same" cache (RFC 3284 Section 5.1).
+func NewAddressCache(nearSize, sameBlocks int) *AddressCache {
 	return &AddressCache{
-		nearSize: nearSize,
-		sameSize: sameSize,
-		near:     make([]uint32, nearSize),
-		same:     make([]uint32, sameSize*256),
+		nearSize:   nearSize,
+		sameBlocks: sameBlocks,
+		near:       make([]uint32, nearSize),
+		same:       make([]uint32, sameBlocks*SameCacheBlockSize),
 	}
 }
 
@@ -76,11 +78,9 @@ func (ac *AddressCache) DecodeAddress(here uint32, mode byte) (uint32, error) {
 
 	default:
 		if int(mode-2) < ac.nearSize {
-			// Near cache
+			// Near cache. Both caches are zero filled at the start of a window
+			// (RFC 3284 Section 5.1), so 0 is an ordinary cached address here.
 			cacheIndex := mode - 2
-			if ac.near[cacheIndex] == 0 {
-				return 0, fmt.Errorf("near cache slot %d is uninitialized", cacheIndex)
-			}
 			offset, err := ReadVarint(ac.addressStream)
 			if err != nil {
 				return 0, fmt.Errorf("error reading offset for near cache mode %d: %v", mode, err)
@@ -89,14 +89,14 @@ func (ac *AddressCache) DecodeAddress(here uint32, mode byte) (uint32, error) {
 		} else {
 			// Same cache
 			m := int(mode) - (2 + ac.nearSize)
-			if m >= ac.sameSize {
-				return 0, fmt.Errorf("same cache mode %d exceeds available slots (max %d)", mode, 2+ac.nearSize+ac.sameSize-1)
+			if m >= ac.sameBlocks {
+				return 0, fmt.Errorf("same cache mode %d exceeds available slots (max %d)", mode, 2+ac.nearSize+ac.sameBlocks-1)
 			}
 			b, err := ac.addressStream.ReadByte()
 			if err != nil {
 				return 0, err
 			}
-			addr = ac.same[m*256+int(b)]
+			addr = ac.same[m*SameCacheBlockSize+int(b)]
 		}
 	}
 
@@ -111,7 +111,8 @@ func (ac *AddressCache) Update(address uint32) {
 		ac.nextNearSlot = (ac.nextNearSlot + 1) % ac.nearSize
 	}
 
-	if ac.sameSize > 0 {
-		ac.same[address%(uint32(ac.sameSize)*256)] = address
+	if ac.sameBlocks > 0 {
+		// RFC 3284 Section 5.1: the slot with index addr % (s_same * 256)
+		ac.same[address%uint32(len(ac.same))] = address
 	}
 }
