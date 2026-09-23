@@ -80,7 +80,7 @@ func Decode(source []byte, delta []byte) ([]byte, error) {
 // decodeWindow decodes a single window using the source data and window instructions
 func (d *decoder) decodeWindow(window *Window, source []byte) ([]byte, error) {
 	// Initialize address cache
-	addressCache := NewAddressCache(NearCacheSize, SameCacheSize)
+	addressCache := NewAddressCache(NearCacheSize, SameCacheBlocks)
 	addressCache.Reset(window.AddressSection)
 
 	// Create target buffer
@@ -210,7 +210,7 @@ func ParseDelta(delta []byte) (*ParsedDelta, error) {
 		parsed.Windows = append(parsed.Windows, window)
 
 		// Create address cache for this window
-		addressCache := NewAddressCache(NearCacheSize, SameCacheSize)
+		addressCache := NewAddressCache(NearCacheSize, SameCacheBlocks)
 		addressCache.Reset(window.AddressSection)
 
 		// Parse instructions using the instruction section and data section

@@ -43,11 +43,12 @@ const (
 	CopyInstructionMax = 255 // COPY instructions: 162-255
 )
 
-// Address cache configuration - RFC 3284 Section 5.3
+// Address cache configuration - RFC 3284 Section 5.1
 const (
-	NearCacheSize        = 4       // Size of "near" address cache
-	SameCacheSize        = 3 * 256 // Size of "same" address cache
-	InstructionTableSize = 256     // Size of instruction code table
+	NearCacheSize        = 4   // s_near: number of slots in the "near" address cache
+	SameCacheBlocks      = 3   // s_same: the "same" address cache holds s_same * SameCacheBlockSize slots
+	SameCacheBlockSize   = 256 // Slots per "same" cache block, one per value of the address byte
+	InstructionTableSize = 256 // Size of instruction code table
 )
 
 // File format validation constants
